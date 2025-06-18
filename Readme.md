@@ -57,3 +57,4 @@ install FFI::Raw
 
 > perl socket.pl
 
+![Снимок экрана в 2025-06-18 12-07-51](https://github.com/user-attachments/assets/42051bc1-6788-4ddb-80a9-6d167fcaa0d3)
