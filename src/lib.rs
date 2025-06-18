@@ -2,70 +2,91 @@
 use std::mem::transmute;
 
 pub struct Args {
-    init: u32,
-    by: u32,
+    power: u32,
+    step: u32,
+    state: bool,
 }
 
-pub struct Counter {
-    val: u32,
-    by: u32,
+pub struct Socket {
+    power: u32,
+    step: u32,
+    state: bool,
 }
 
-impl Counter {
-    pub fn new(args: &Args) -> Counter {
-        Counter {
-            val: args.init,
-            by: args.by,
+impl Socket {
+    pub fn new(args: &Args) -> Socket {
+        Socket {
+            power: args.power,
+            step: args.step,
+            state: args.state,
         }
     }
 
     pub fn get(&self) -> u32 {
-        self.val
+        self.power
     }
 
     pub fn incr(&mut self) -> u32 {
-        self.val += self.by;
-        self.val
+        self.power += self.step;
+        self.power
     }
 
     pub fn decr(&mut self) -> u32 {
-        self.val -= self.by;
-        self.val
+        self.power -= self.step;
+        self.power
+    }
+
+    pub fn state(&self) -> bool {
+        self.state
+    }
+
+    pub fn turn(&mut self) -> bool {
+        self.state = !self.state;
+        self.state
     }
 }
 
 /// # Safety
 ///
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn createCounter(args: &Args) -> *mut Counter {
-    unsafe { transmute(Box::new(Counter::new(args))) }
+pub unsafe extern "C" fn create_socket(args: &Args) -> *mut Socket {
+    unsafe { transmute(Box::new(Socket::new(args))) }
 }
 /// # Safety
 ///
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn getCounterValue(ptr: *mut Counter) -> u32 {
-    let counter = unsafe { &mut *ptr };
-    counter.get()
+pub unsafe extern "C" fn get_power(ptr: *mut Socket) -> u32 {
+    let socket = unsafe { &mut *ptr };
+    socket.get()
 }
 
 /// # Safety
 ///
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn incrementCounterBy(ptr: *mut Counter) -> u32 {
-    let counter = unsafe { &mut *ptr };
-    counter.incr()
+pub unsafe extern "C" fn inc_power(ptr: *mut Socket) -> u32 {
+    let socket = unsafe { &mut *ptr };
+    socket.incr()
 }
 /// # Safety
 ///
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn decrementCounterBy(ptr: *mut Counter) -> u32 {
-    let counter = unsafe { &mut *ptr };
-    counter.decr()
+pub unsafe extern "C" fn dec_power(ptr: *mut Socket) -> u32 {
+    let socket = unsafe { &mut *ptr };
+    socket.decr()
 }
+
 /// # Safety
 ///
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn destroyCounter(ptr: *mut Counter) {
-    let _counter: Box<Counter> = unsafe { transmute(ptr) };
-    // Drop
+pub unsafe extern "C" fn status(ptr: *mut Socket) -> bool {
+    let socket = unsafe { &mut *ptr };
+    socket.state()
+}
+
+/// # Safety
+///
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn turn(ptr: *mut Socket) -> bool {
+    let socket = unsafe { &mut *ptr };
+    socket.turn()
 }
